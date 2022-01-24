@@ -1,4 +1,3 @@
-import pandas as pd
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -21,15 +20,15 @@ class SocketThread(QThread):
         self.close_req = False
         self.thread_list = []
         self.max_recv_timeout_cnt = 100     # X 초간 데이터 수신이 안될 경우
+        self.server_socket = None
 
     def run(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # 포트 사용중 이라는 WinError 10048 에러 해결을 위해 필요
-        #self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         recv_timeout_cnt = 0
         try:
             # Bind
             self.server_socket.bind((self.ip, self.port))
+            self.log.emit(str(self.port) + " Port Opened")
         except Exception as e:
             # Bind 실패 시 > 이미 포트가 열려 있을 경우
             self.log.emit("00")     # 00 = 포트 사용중 알림창 팝업 플래그
@@ -204,6 +203,7 @@ class MainDialog(QMainWindow, mainui.Ui_MainWindow):
         elif status == "disconnect":
             self.statuslabel.setText("포트 닫힘")
             self.status_alarm.setStyleSheet("background-color: red")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

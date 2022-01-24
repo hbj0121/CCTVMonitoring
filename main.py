@@ -1,11 +1,12 @@
+import pandas as pd
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import CCTVui_2 as mainui
-import time
 import datetime
 import sys
-import threading
+import pandas as pd
+import os
 import socket
 
 
@@ -82,12 +83,12 @@ class SocketThread(QThread):
                                 ch1_current = str(int(msg[22:27])/1000)
                                 ch2_current = str(int(msg[27:32])/1000)
                                 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                datadict = {'solar': solar,
+                                datadict = {'time': now,
+                                            'solar': solar,
                                             'temp': temp,
                                             'voltage': voltage,
                                             'ch1_current': ch1_current,
-                                            'ch2_current': ch2_current,
-                                            'time': now}
+                                            'ch2_current': ch2_current}
                                 self.data.emit(datadict)        # dict 형태로 가공한 datadict GUI 전송
                                 self.log.emit(" Data received")
                             except Exception as e:
@@ -160,10 +161,23 @@ class MainDialog(QMainWindow, mainui.Ui_MainWindow):
         self.sensor_solar.setText(data['solar'])
         self.sensor_temp.setText(data['temp'])
 
+    def save_data(self, data):
+        pddata = pd.DataFrame([data])
+        if sys.platform.startswith('win'):
+            fpath = os.getcwd() + "\\datalog.csv"
+        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+            fpath = os.getcwd() + "/datalog.csv"
+        if os.path.isfile(fpath):
+            pddata.to_csv(fpath, index=False, mode='a', encoding='cp949', header=False)
+        else:
+            pddata.to_csv(fpath, index=False, mode='w', encoding='cp949')
+
+
     @pyqtSlot(dict)
     def thread_event_value(self, data):
         # Thread 에서 정상 수신 데이터 dict 가 넘어 올 때
         self.write_value(data)
+        self.save_data(data)
 
     @pyqtSlot(str)
     def thread_event_log(self, log):

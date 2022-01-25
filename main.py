@@ -181,7 +181,7 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
     def thread_event_value(self, data):
         # Thread 에서 정상 수신 데이터 dict 가 넘어 올 때
         self.write_value(data)
-        self.save_data(data)
+        save_data(data)
 
     @pyqtSlot(str)
     def thread_event_log(self, log):

@@ -90,6 +90,7 @@ class SocketThread(QThread):
             else:
                 if recv == b'':
                     # 클라이언트가 연결 종료 시 b'' 값 수신 > 해당 클라이언트 종료
+                    self.log.emit("{addr} Disconnected".format(addr=addr[0]))
                     break
                 recv_timeout_cnt = 0  # 수신 타임 아웃 카운트 초기화
                 msg = recv.decode(errors='ignore')

@@ -31,7 +31,7 @@ class SocketThread(QThread):
         try:
             # Bind
             self.server_socket.bind((self.ip, self.port))
-            self.log.emit(str(self.port) + " Port Opened")
+            self.log.emit("{port} Port Opened".format(port=str(self.port)))
             self.status.emit("clientwait")  # clienwait = 클라이언트 대기 상태
         except Exception as e:
             # Bind 실패 시 > 이미 포트가 열려 있을 경우
@@ -45,7 +45,7 @@ class SocketThread(QThread):
                     # 연결 시도
                     client, addr = self.server_socket.accept()
                     self.status.emit("wait")  # wait = 데이터 수신 대기중 상태
-                    self.log.emit(addr[0] + " Connected")     # client 주소 + 연결 문자열 전송
+                    self.log.emit("{addr} Connected".format(addr=addr[0]))     # client 주소 + 연결 문자열 전송
                     client.settimeout(1)    # 매초 데이터 수신 시도
                 except socket.timeout:
                     pass
@@ -80,8 +80,9 @@ class SocketThread(QThread):
                             if msg.startswith('(') and msg.endswith(')'):   # STX, ETX 검사
                                 try:
                                     solar = str(int(msg[1:5]))
-                                    mark = lambda x : '- ' if x == '-' else '  '    # 온도 양수 음수 부호
-                                    temp = mark(msg[9]) + str(int(msg[10:13])/10)
+                                    mark = lambda x: '- ' if x == '-' else '  '    # 온도 양수 음수 부호
+                                    temp = "{mark} {temp}".format(mark=mark(msg[9]),
+                                                                  temp=str(int(msg[10:13])/10))
                                     voltage = str(int(msg[17:22])/1000)
                                     ch1_current = str(int(msg[22:27])/1000)
                                     ch2_current = str(int(msg[27:32])/1000)
@@ -100,13 +101,13 @@ class SocketThread(QThread):
                                 self.log.emit(" Invalid format of data received(Header, Tail)")
 
                     # 클라이언트 연결 후 Close 버튼 클릭 시 연결 종료
-                    self.log.emit(addr[0] + " Connection Closed")  # client 주소 + 연결 종료 문자열 전송
+                    self.log.emit("{addr} Connection Closed".format(addr=addr[0]))  # client 주소 + 연결 종료 문자열 전송
                     self.status.emit("disconnect")  # disconnect = 포트 닫힘 상태
                     client.close()
                     self.server_socket.close()
             # 클라이언트 연결 전 Close 버튼 클릭 시 연결 종료
             self.status.emit("disconnect")
-            self.log.emit(str(self.port) + " Port Closed")  # client 주소 + 연결 종료 문자열 전송
+            self.log.emit("{port} Port Closed".format(port=str(self.port)))  # client 주소 + 연결 종료 문자열 전송
             self.server_socket.close()
 
     def reset_socket(self, client, addr, close_type):
@@ -117,8 +118,8 @@ class SocketThread(QThread):
         :param close_type: 소켓 닫힌 이유
         :return:
         """
-        self.log.emit(addr[0] + close_type)
-        self.log.emit(addr[0] + " Connection Closed")
+        self.log.emit("{addr} {ctype}".format(addr=addr[0], ctype=close_type))
+        self.log.emit("{addr} Connection Closed".format(addr=addr[0]))
         self.status.emit("disconnect")
         client.close()
         self.run()
@@ -176,18 +177,6 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
         self.sensor_solar.setText(data['solar'])
         self.sensor_temp.setText(data['temp'])
 
-    def save_data(self, data):
-        pddata = pd.DataFrame([data])
-        if sys.platform.startswith('win'):
-            fpath = os.getcwd() + "\\datalog.csv"
-        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-            fpath = os.getcwd() + "/datalog.csv"
-        if os.path.isfile(fpath):
-            pddata.to_csv(fpath, index=False, mode='a', encoding='cp949', header=False)
-        else:
-            pddata.to_csv(fpath, index=False, mode='w', encoding='cp949')
-
-
     @pyqtSlot(dict)
     def thread_event_value(self, data):
         # Thread 에서 정상 수신 데이터 dict 가 넘어 올 때
@@ -205,7 +194,7 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
         else:
             # Thread 에서 연결 로그가 넘어 왔을 경우
             now = datetime.datetime.now().strftime("%H:%M:%S")
-            self.logtextedit.appendPlainText(now + "   " + log)
+            self.logtextedit.appendPlainText("{now}   {log}".format(now=now, log=log))
 
     @pyqtSlot(str)
     def thread_event_status(self, status):
@@ -222,6 +211,25 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
         elif status == "disconnect":
             self.statuslabel.setText("포트 닫힘")
             self.status_alarm.setStyleSheet("background-color: red")
+
+
+def save_data(data):
+    """
+    수신 데이터를 csv 형식 엑셀파일로 저장하는 함수
+    :param data: dict 형태의 수신 데이터
+    :return: 엑셀 파일 저장
+    """
+    pddata = pd.DataFrame([data])
+    if sys.platform.startswith('win'):
+        fpath = "{path}\\datalog.csv".format(path=os.getcwd())
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        fpath = "{path}/datalog.csv".format(path=os.getcwd())
+    else:
+        fpath = None
+    if os.path.isfile(fpath):
+        pddata.to_csv(fpath, index=False, mode='a', encoding='cp949', header=False)
+    else:
+        pddata.to_csv(fpath, index=False, mode='w', encoding='cp949')
 
 
 if __name__ == "__main__":

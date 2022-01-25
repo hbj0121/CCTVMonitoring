@@ -69,8 +69,13 @@ class SocketThread(QThread):
         self.status.emit("disconnect")
         self.server_socket.close()
 
-
     def receive(self, addr, client):
+        """
+        소켓 데이터 수신 스레드
+        :param addr: 주소, 포트 정보
+        :param client:  클라이언트 정보
+        :return:
+        """
         global open_data
         recv_timeout_cnt = 0
         while open_data:

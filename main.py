@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import CCTVui_2 as MainUi
+import CCTVui_3 as MainUi
 import datetime
 import sys
 import pandas as pd
@@ -11,6 +11,7 @@ import threading
 
 open_client = True
 open_data = True
+
 
 class SocketThread(QThread):
     data = pyqtSignal(dict)         # 수신 데이터 dict 형태로 GUI 전송 변수
@@ -49,7 +50,6 @@ class SocketThread(QThread):
 
     def listen(self, server):
         global open_client
-        client, addr = None, None
         while open_client:
             server.listen(5)
             try:
@@ -109,13 +109,15 @@ class SocketThread(QThread):
                         voltage = str(int(msg[17:22]) / 1000)
                         ch1_current = str(int(msg[22:27]) / 1000)
                         ch2_current = str(int(msg[27:32]) / 1000)
+                        charge_current = str(int(msg[32:36]) / 1000)
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         datadict = {'time': now,
                                     'solar': solar,
                                     'temp': temp,
                                     'voltage': voltage,
                                     'ch1_current': ch1_current,
-                                    'ch2_current': ch2_current}
+                                    'ch2_current': ch2_current,
+                                    "charge_current": charge_current}
                         self.data.emit(datadict)  # dict 형태로 가공한 datadict GUI 전송
                         self.log.emit("{addr} Data received".format(addr=addr[0]))
                     except Exception as e:
@@ -179,6 +181,9 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
         # 환경 센서
         self.sensor_solar.setText(data['solar'])
         self.sensor_temp.setText(data['temp'])
+        # 충전 전류
+        self.charge_current.setText(data['charge_current'])
+
 
     def save_data(self, data):
         """

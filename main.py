@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import CCTVui_3 as MainUi
+import CCTVui_2 as MainUi
 import datetime
 import sys
 import pandas as pd
@@ -109,7 +109,7 @@ class SocketThread(QThread):
                         voltage = str(int(msg[17:22]) / 1000)
                         ch1_current = str(int(msg[22:27]) / 1000)
                         ch2_current = str(int(msg[27:32]) / 1000)
-                        charge_current = str(int(msg[32:36]) / 1000)
+                        charge_current = str(int(msg[32:37]) / 1000)
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         datadict = {'time': now,
                                     'solar': solar,
@@ -202,9 +202,9 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
                 else:
                     fpath = None
                 if os.path.isfile(fpath):
-                    pddata.to_csv(fpath, index=False, mode='a', encoding='cp949', header=False)
+                    pddata.to_csv(fpath, index=False, mode='a', encoding='utf-8', header=False)
                 else:
-                    pddata.to_csv(fpath, index=False, mode='w', encoding='cp949')
+                    pddata.to_csv(fpath, index=False, mode='w', encoding='utf-8')
             except Exception as e:
                 self.save_flag = True
 

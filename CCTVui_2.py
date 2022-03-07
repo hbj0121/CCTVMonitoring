@@ -406,7 +406,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "CCTV 모니터링"))
-        self.label_2.setText(_translate("MainWindow", "(주)이음아이씨티 CCTV모니터링 V1.0"))
+        self.label_2.setText(_translate("MainWindow", "(주)이음아이씨티 CCTV모니터링 V1.1_220307"))
         self.label_7.setText(_translate("MainWindow", "로그"))
         self.label.setText(_translate("MainWindow", "PORT"))
         self.listen_btn.setText(_translate("MainWindow", "Listen"))

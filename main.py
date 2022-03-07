@@ -204,9 +204,9 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
                 else:
                     fpath = None
                 if os.path.isfile(fpath):
-                    pddata.to_csv(fpath, index=False, mode='a', encoding='cp949', header=False)
+                    pddata.to_csv(fpath, index=False, mode='a', encoding='utf-8', header=False)
                 else:
-                    pddata.to_csv(fpath, index=False, mode='w', encoding='cp949')
+                    pddata.to_csv(fpath, index=False, mode='w', encoding='utf-8')
             except Exception as e:
                 self.save_flag = True
 

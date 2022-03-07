@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'CCTVui_V2.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -260,6 +262,7 @@ class Ui_MainWindow(object):
         self.charge_current.setMinimumSize(QtCore.QSize(50, 20))
         self.charge_current.setMaximumSize(QtCore.QSize(50, 20))
         self.charge_current.setText("")
+        self.charge_current.setAlignment(QtCore.Qt.AlignCenter)
         self.charge_current.setObjectName("charge_current")
         self.gridLayout_3.addWidget(self.charge_current, 2, 1, 1, 1)
         self.label_17 = QtWidgets.QLabel(self.frame_9)
@@ -442,4 +445,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

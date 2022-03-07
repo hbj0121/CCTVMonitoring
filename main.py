@@ -1,13 +1,14 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import CCTVui_3 as MainUi
+import CCTVui_2 as MainUi
 import datetime
 import sys
-import pandas as pd
 import os
 import socket
 import threading
+# import pandas as pd
+from pandas import DataFrame as df
 
 open_client = True
 open_data = True
@@ -109,7 +110,7 @@ class SocketThread(QThread):
                         voltage = str(int(msg[17:22]) / 1000)
                         ch1_current = str(int(msg[22:27]) / 1000)
                         ch2_current = str(int(msg[27:32]) / 1000)
-                        charge_current = str(int(msg[32:36]) / 1000)
+                        charge_current = str(int(msg[32:37]) / 1000)
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         datadict = {'time': now,
                                     'solar': solar,
@@ -194,7 +195,8 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
         self.save_flag = False
         if self.autosave.isChecked():
             try:
-                pddata = pd.DataFrame([data])
+                # pddata = pd.DataFrame([data])
+                pddata = df([data])
                 if sys.platform.startswith('win'):
                     fpath = "{path}\\datalog.csv".format(path=os.getcwd())
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):

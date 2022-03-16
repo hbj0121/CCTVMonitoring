@@ -103,22 +103,24 @@ class SocketThread(QThread):
                 self.status.emit("connect")  # connect = 포트 연결 상태(데이터 수신 완료)
                 if msg.startswith('(') and msg.endswith(')'):  # STX, ETX 검사
                     try:
-                        solar = str(int(msg[1:5]))
+                        solar = int(msg[1:5])
                         mark = lambda x: '- ' if x == '-' else '  '  # 온도 양수 음수 부호
                         temp = "{mark} {temp}".format(mark=mark(msg[9]),
-                                                      temp=str(int(msg[10:13]) / 10))
-                        voltage = str(int(msg[17:22]) / 1000)
-                        ch1_current = str(int(msg[22:27]) / 1000)
-                        ch2_current = str(int(msg[27:32]) / 1000)
-                        charge_current = str(int(msg[32:37]) / 1000)
+                                                      temp=(int(msg[10:13]) / 10))
+                        voltage = int(msg[17:22]) / 1000
+                        ch1_current = int(msg[22:27]) / 1000
+                        ch2_current = int(msg[27:32]) / 1000
+                        charge_current = int(msg[32:37]) / 1000
+                        charge_w = int(voltage * charge_current)
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         datadict = {'time': now,
-                                    'solar': solar,
-                                    'temp': temp,
-                                    'voltage': voltage,
-                                    'ch1_current': ch1_current,
-                                    'ch2_current': ch2_current,
-                                    "charge_current": charge_current}
+                                    'solar': str(solar),
+                                    'temp': str(temp),
+                                    'voltage': str(voltage),
+                                    'ch1_current': str(ch1_current),
+                                    'ch2_current': str(ch2_current),
+                                    "charge_current": str(charge_current),
+                                    "charge_w": str(charge_w)}
                         self.data.emit(datadict)  # dict 형태로 가공한 datadict GUI 전송
                         self.log.emit("{addr} Data received".format(addr=addr[0]))
                     except Exception as e:
@@ -184,6 +186,7 @@ class MainDialog(QMainWindow, MainUi.Ui_MainWindow):
         self.sensor_temp.setText(data['temp'])
         # 충전 전류
         self.charge_current.setText(data['charge_current'])
+        self.charge_w.setText(data['charge_w'])
 
 
     def save_data(self, data):
